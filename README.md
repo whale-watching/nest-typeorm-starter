@@ -1,93 +1,176 @@
-# Awesome NestJS Boilerplate v9
 
-[![Awesome NestJS](https://img.shields.io/badge/Awesome-NestJS-blue.svg?longCache=true&style=flat-square)](https://github.com/juliandavidmr/awesome-nestjs)
+# Nest.js Boilerplate with TypeORM
 
-> This is an ever-evolving, very opinionated architecture and dev environment for new node projects using [NestJS](https://nestjs.com). Questions, feedback, and for now, even bikeshedding are welcome. 😄
+- [Setup and development](#setup-and-development)
+  - [First-time setup](#first-time-setup)
+  - [Installation](#installation)
+    - [Database](#database)
+    - [Configuration](#configuration)
+    - [Dev server](#dev-server)
+  - [Generators](#generators)
+  - [Docker](#docker)
+    - [Docker installation](#docker-installation)
+    - [Docker-compose installation](#docker-compose-installation)
+    - [Run](#run)
 
-## Getting started
+## First-time setup
+
+Make sure you have the following installed:
+
+- [Node](https://nodejs.org/en/) (at least the latest LTS)
+- [Yarn](https://yarnpkg.com/lang/en/docs/install/) (at least 1.0)
+
+## Installation
 
 ```bash
-# 1. Clone the repository or click on "Use this template" button.
-npx degit NarHakobyan/awesome-nest-boilerplate my-nest-app
-
-# 2. Enter your newly-cloned folder.
-cd my-nest-app
-
-# 3. Create Environment variables file.
-cp .env .env
-
-# 3. Install dependencies. (Make sure yarn is installed: https://yarnpkg.com/lang/en/docs/install)
-yarn
+# Install dependencies from package.json
+yarn install
 ```
 
-## Checklist
+> Note: don't delete yarn.lock before installation, See more [in yarn docs](https://classic.yarnpkg.com/en/docs/yarn-lock/)
 
-When you use this template, try follow the checklist to update your info properly
+### Database
 
-- [ ] Change the author name in `LICENSE`
-- [ ] Change configurations in `.env`
-- [ ] Remove the `.github` folder which contains the funding info
-- [ ] Clean up the README.md file
+> Note: Awesome NestJS Boilerplate uses [TypeORM](https://github.com/typeorm/typeorm) with Data Mapper pattern.
 
-And, enjoy :)
+### Configuration
 
+Before start install PostgreSQL and fill correct configurations in `.env` file
 
-### Development
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_DATABASE=nest_boilerplate
+```
+
+Some helper script to work with database
+
 ```bash
-# 4. Run development server and open http://localhost:3000
+# To create new migration file
+yarn migration:create migration_name
+
+# Truncate full database (note: it isn't deleting the database)
+yarn schema:drop
+
+# Generate migration from update of entities
+yarn migration:generate migration_name
+```
+
+#### MySQL
+
+If you need to use MySQL / MariaDB instead of PostgreSQL, follow the steps below:
+> (assuming you have installed mysql in your system and it is running on port 3306)
+1. Make the following entries in the #DB section in `.env` file
+
+```env
+#== DB
+DB_TYPE=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USERNAME=mysql
+DB_PASSWORD=mysql
+DB_DATABASE=nest_boilerplate
+DB_ROOT_PASSWORD=mysql
+DB_ALLOW_EMPTY_PASSWORD=yes
+```
+2. Change the DB in TypeORM to MySQL. You can do that by heading over to the file `ormconfig.ts`.
+```
+...
+export const dataSource = new DataSource({
+  type: 'mysql', // <-- Just write mysql here
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+  namingStrategy: new SnakeNamingStrategy(),
+  subscribers: [UserSubscriber],
+  entities: [
+    'src/modules/**/*.entity{.ts,.js}',
+    'src/modules/**/*.view-entity{.ts,.js}',
+  ],
+  migrations: ['src/database/migrations/*{.ts,.js}'],
+});
+```
+3. Delete all the files in migrations folder (`src/database/migrations`)
+4. Run the following commands in the root folder of the project, to regenerate the migrations:
+```
+yarn typeorm migration:generate ./src/database/migrations/MySQLMigrations
+```
+
+These steps may work for [other databases](https://typeorm.io/#features) supported by TypeORM. If they work, let us know and we'll add it to the docs!
+
+##### Docker Compose
+After completing the steps above, you can use [this docker-compose file](../docker-compose_mysql.yml) for awesome-nest-boilerplate with MySQL (instead of PostgreSQL).
+
+### Dev server
+
+> Note: If you're on Linux and see an `ENOSPC` error when running the commands below, you must [increase the number of available file watchers](https://stackoverflow.com/questions/22475849/node-js-error-enospc#answer-32600959).
+
+```bash
+# Launch the dev server
 yarn start:dev
 
-# 5. Read the documentation linked below for "Setup and development".
+# Launch the dev server with file watcher
+yarn watch:dev
+
+# Launch the dev server and enable remote debugger with file watcher
+yarn debug:dev
 ```
 
-### Build
+## Generators
 
-To build the App, run
+This project includes generators to speed up common development tasks. Commands include:
+
+> Note: Make sure you already have the nest-cli globally installed
 
 ```bash
-yarn build:prod
+# Install nest-cli globally
+yarn global add @nestjs/cli
+
+# Generate a new service
+nest generate service users
+
+# Generate a new class
+nest g class users
+
+```
+> Note: if you love generators then you can find full list of command in official [Nest-cli Docs](https://docs.nestjs.com/cli/usages#generate-alias-g).
+
+## Docker
+
+if you are familiar with [docker](https://www.docker.com/) and [docker-compose](https://docs.docker.com/compose) then you can run built in docker-compose file, which will install and configure application and database for you.
+
+### Docker installation
+
+Download docker from Official website
+
+- Mac <https://docs.docker.com/docker-for-mac/install/>
+- Windows <https://docs.docker.com/docker-for-windows/install/>
+- Ubuntu <https://docs.docker.com/install/linux/docker-ce/ubuntu/>
+
+### Docker-compose installation
+
+Download docker from [Official website](https://docs.docker.com/compose/install)
+
+### Run
+
+Open terminal and navigate to project directory and run the following command.
+
+```bash
+PORT=3000 docker-compose up
 ```
 
-And you will see the generated file in `dist` that ready to be served.
+> Note: application will run on port 3000 (<http://localhost:3000>)
 
-## Features
+Navigate to <http://localhost:8080> and connect to you database with the following configurations
 
-<dl>
-  <!-- <dt><b>Quick scaffolding</b></dt>
-  <dd>Create modules, services, controller - right from the CLI!</dd> -->
+```text
+host: postgres
+user: postgres
+pass: postgres
+```
 
-  <dt><b>Instant feedback</b></dt>
-  <dd>Enjoy the best DX (Developer eXperience) and code your app at the speed of thought! Your saved changes are reflected instantaneously.</dd>
-
-  <dt><b>JWT Authentication</b></dt>
-  <dd>Installed and configured JWT authentication.</dd>
-
-  <dt><b>Next generation Typescript</b></dt>
-  <dd>Always up to date typescript version.</dd>
-
-  <dt><b>Industry-standard routing</b></dt>
-  <dd>It's natural to want to add pages (e.g. /about`) to your application, and routing makes this possible.</dd>
-
-  <dt><b>Environment Configuration</b></dt>
-  <dd>development, staging and production environment configurations</dd>
-
-  <dt><b>Swagger Api Documentation</b></dt>
-  <dd>Already integrated API documentation. To see all available endpoints visit http://localhost:3000/documentation</dd>
-
-  <dt><b>Linter</b></dt>  
-  <dd>eslint + prettier = ❤️</dd>
-</dl>
-
-## Documentation
-
-This project includes a `docs` folder with more details on:
-
-1.  [Setup and development](https://narhakobyan.github.io/awesome-nest-boilerplate/docs/development.html#first-time-setup)
-1.  [Architecture](https://narhakobyan.github.io/awesome-nest-boilerplate/docs/architecture.html)
-1.  [Naming Cheatsheet](https://narhakobyan.github.io/awesome-nest-boilerplate/docs/naming-cheatsheet.html)
-
-## Community
-
-For help, discussion about best practices, or any other conversation that would benefit from being searchable:
-
-[Discuss Awesome NestJS Boilerplate on GitHub](https://github.com/NarHakobyan/awesome-nest-boilerplate/discussions)
+create database `nest_boilerplate` and your application fully is ready to use.

@@ -1,8 +1,8 @@
 {
-  "name": "awesome-nestjs-boilerplate",
-  "version": "9.0.0",
-  "description": "Awesome NestJS Boilerplate, Typescript, Postgres, TypeORM",
-  "author": "Narek Hakobyan <narek.hakobyan.07@gmail.com>",
+  "name": "motoshare-nestjs-admin-backend",
+  "version": "1.0.0",
+  "description": "MotoShare Admin Backend",
+  "author": "Chris Chen <chenchrissh@gmail.com>",
   "private": true,
   "license": "MIT",
   "scripts": {
@@ -120,8 +120,6 @@
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.0.2",
-    "vue": "^3.2.47",
-    "vuepress": "^2.0.0-beta.61",
     "webpack": "^5.76.2",
     "webpack-cli": "^5.0.1",
     "webpack-node-externals": "^3.0.0"
