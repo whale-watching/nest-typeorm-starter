@@ -48,7 +48,7 @@ module.exports = {
     'unicorn/prefer-node-protocol': 'off',
     'sonarjs/no-duplicate-string': 'off',
     'import/no-unresolved': ['error', {ignore: ['^@hrdrone\/*']}],
-    'prettier/prettier': ['error', {singleQuote: true, trailingComma: 'all', tabWidth: 2, bracketSpacing: true}],
+    'prettier/prettier': ['error', {singleQuote: true, endOfLine: 'auto', trailingComma: 'all', tabWidth: 2, bracketSpacing: true}],
     /**
      * plugin:simple-import-sort
      */
